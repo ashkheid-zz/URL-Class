@@ -9,7 +9,8 @@ class URL {
       url = /(?<=www\.?\w+\.[a-z]+)\/\S+(?=[?])/,
       queries = /(?<=[?])\S+/;
 
-    return {
+    const queriesObj = {};
+    const urlParts = {
       domain: str.match(domain).toString(),
       protocol: str.match(protocol).toString(),
       tld: str.match(tld).toString(),
@@ -18,8 +19,16 @@ class URL {
         .match(queries)
         .toString()
         .split("&")
-        .map((element) => element.split("=")),
+        .map((element) => element.split("="))
+        .map(item => {
+          let obj = {};
+          obj[item[0]] = item[1];
+          return obj;
+        }),
     };
+
+
+    return urlParts;
   }
 
   get domain() {
