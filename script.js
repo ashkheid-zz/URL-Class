@@ -3,57 +3,58 @@ class URL {
     this.urlObject = this.urlChopper(theURL);
   }
   urlChopper(str) {
-    const protocol = /https?/,
-      domain = /www\.?\w+\.[a-z]+/,
-      tld = /(?<=www\.?\w+\.)[a-z]+/,
-      url = /(?<=www\.?\w+\.[a-z]+)\/\S+(?=[?])/,
-      queries = /(?<=[?])\S+/;
+    const protocolRegEx = /https?/,
+      domainRegEx = /(www\.)?\w+\.[a-z]+/,
+      tldRegEx = /(?<=(www\.)?\w+\.)[a-z]+/,
+      urlRegEx = /(?<=(www\.)?\w+\.[a-z]+)\/\S+(?=[?])/,
+      queriesRegEx = /(?<=[?])\S+/;
 
-    const queriesObj = {};
     const urlParts = {
-      domain: str.match(domain).toString(),
-      protocol: str.match(protocol).toString(),
-      tld: str.match(tld).toString(),
-      url: str.match(url).toString(),
-      queries: str
-        .match(queries)
-        .toString()
-        .split("&")
-        .map((element) => element.split("="))
-        .map(item => {
-          let obj = {};
-          obj[item[0]] = item[1];
-          return obj;
-        }),
+      domain: str.match(domainRegEx).toString(),
+      protocol: str.match(protocolRegEx).toString(),
+      tld: str.match(tldRegEx).toString(),
+      url: str.match(urlRegEx).toString(),
+      queries: Object.fromEntries(
+        str
+          .match(queriesRegEx)
+          .toString()
+          .split('&')
+          .map((element) => element.split('='))
+      ),
+      isActive: Boolean(this.isUrlActive(str)),
     };
-
 
     return urlParts;
   }
 
-  get domain() {
+  get getDomain() {
     return this.urlObject.domain;
   }
 
-  get protocol() {
+  get getProtocol() {
     return this.urlObject.protocol;
   }
 
-  get tld() {
+  get getTld() {
     return this.urlObject.tld;
   }
 
-  get url() {
+  get getUrl() {
     return this.urlObject.url;
   }
 
-  get queries() {
+  get getQueries() {
     return this.urlObject.queries;
+  }
+
+  async isUrlActive(str) {
+    let check;
+    await fetch(str).then(res => check = res.status);
+    return check === 200;
   }
 }
 
-let str =
-  "https://www.google.com/books/edition/Algorithmic_Thinking/eY4HEAAAQBAJ?hl=en&gbpv=1&dq=algorithmic+thinking+a+problem-based+introduction";
+let str = 'https://reqres.in/api/users?page=2';
 
 let test = new URL(str);
 console.log(test.urlObject);
